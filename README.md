@@ -13,7 +13,7 @@ Tik tok Video download telegram bot
 <p align="center">
 
 ## Heroku Deployment
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/doozylab-lk/Tik-Tok-download)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/TEAM-DLK/Tik-Tok-download)
 
 
 
