@@ -47,12 +47,12 @@ async def run_cmd(cmd: str) -> Tuple[str, str, int, int]:
   )
 
 # Start
-@xbot.on_message(filters.command('start') & filters.private)
+@xbot.on_message(filters.command('start') & filters.group)
 async def _start(bot, update):
   await update.reply_text(f"ɪ'ᴍ ᴅᴏᴏᴢʏ TɪᴋTᴏᴋ ᴅᴏᴡɴʟᴏᴀᴅᴇʀ!\nʏᴏᴜ ᴄᴀɴ ᴅᴏᴡɴʟᴏᴀᴅ TɪᴋTᴏᴋ ᴠɪᴅᴇᴏ/ᴀᴜᴅɪᴏ ᴜsɪɴɢ ᴛʜɪs ʙᴏᴛ", True, reply_markup=InlineKeyboardMarkup(START_BUTTONS))
 
 # Downloader for tiktok
-@xbot.on_message(filters.regex(pattern='.*http.*') & filters.private)
+@xbot.on_message(filters.regex(pattern='.*http.*') & filters.group)
 async def _tiktok(bot, update):
   url = update.text
   session = requests.Session()
