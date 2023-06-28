@@ -9,27 +9,29 @@ APP_ID = int(os.environ['APP_ID'])
 BOT_TOKEN = os.environ['BOT_TOKEN']
 downloads = './downloads/{}/'
 
-# Button
+#Button
 START_BUTTONS=[
     [
-        InlineKeyboardButton('ɢʀᴏᴜᴘ', url='https://t.me/TeamDLKsupport'),
-        InlineKeyboardButton('ᴄʜᴀɴɴᴇʟ', url='https://t.me/TeamDLK'),
+        InlineKeyboardButton("Source", url="https://github.com/TEAM-DLK/Tik-Tok-download"),
+        InlineKeyboardButton("Project Channel", url="https://t.me/xTeamBots"),
     ],
-    [InlineKeyboardButton('ᴏᴡɴᴇʀ', url='https://t.me/doozylab_lk')],
+    [InlineKeyboardButton("Author", url="https://t.me/xgorn")],
 ]
 
 DL_BUTTONS=[
     [
-        InlineKeyboardButton('ᴺᴼ ᵂᴬᵀᴱᴿᴹᴬᴿᴷ', callback_data='nowm'),
-        InlineKeyboardButton('ᵂᴬᵀᴱᴿᴹᴬᴿᴷ', callback_data='wm'),
+        InlineKeyboardButton("No Watermark", callback_data="nowm"),
+        InlineKeyboardButton("Watermark", callback_data="wm"),
     ],
-    [InlineKeyboardButton('ᴬᵁᴰᴵᴼ', callback_data='audio')],
+    [InlineKeyboardButton("Audio", callback_data="audio")],
 ]
 
 
 # Running bot
-xbot = Client('Tik-Tok-download', api_id=APP_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
-
+xbot = Client('TikTokDL',
+             api_id=API_ID,
+             api_hash=API_HASH,
+             bot_token=BOT_TOKEN)
 
 # Helpers
 # Thanks to FridayUB
@@ -47,12 +49,12 @@ async def run_cmd(cmd: str) -> Tuple[str, str, int, int]:
   )
 
 # Start
-@xbot.on_message(filters.command('start') & filters.group)
+@xbot.on_message(filters.command('start') & filters.private)
 async def _start(bot, update):
-  await update.reply_text(f"ɪ'ᴍ ᴅᴏᴏᴢʏ TɪᴋTᴏᴋ ᴅᴏᴡɴʟᴏᴀᴅᴇʀ!\nʏᴏᴜ ᴄᴀɴ ᴅᴏᴡɴʟᴏᴀᴅ TɪᴋTᴏᴋ ᴠɪᴅᴇᴏ/ᴀᴜᴅɪᴏ ᴜsɪɴɢ ᴛʜɪs ʙᴏᴛ", True, reply_markup=InlineKeyboardMarkup(START_BUTTONS))
+  await update.reply_text(f"I'm TikTokDL!\nYou can download tiktok url video/audio using this bot", True, reply_markup=InlineKeyboardMarkup(START_BUTTONS))
 
 # Downloader for tiktok
-@xbot.on_message(filters.regex(pattern='.*http.*') & filters.group)
+@xbot.on_message(filters.regex(pattern='.*http.*') & filters.private)
 async def _tiktok(bot, update):
   url = update.text
   session = requests.Session()
