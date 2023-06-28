@@ -13,9 +13,9 @@ downloads = './downloads/{}/'
 START_BUTTONS=[
     [
         InlineKeyboardButton("Source", url="https://github.com/TEAM-DLK/Tik-Tok-download"),
-        InlineKeyboardButton("Project Channel", url="https://t.me/xTeamBots"),
+        InlineKeyboardButton("Project Channel", url="https://t.me/DOOZY_OFF"),
     ],
-    [InlineKeyboardButton("Author", url="https://t.me/xgorn")],
+    [InlineKeyboardButton("Author", url="https://t.me/iiiIiiiAiiiMiii")],
 ]
 
 DL_BUTTONS=[
