@@ -28,7 +28,7 @@ DL_BUTTONS=[
 
 
 # Running bot
-xbot = Client('TikTokDL', api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
+xbot = Client('Tik-Tok-download', api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
 # Helpers
 # Thanks to FridayUB
@@ -48,7 +48,7 @@ async def run_cmd(cmd: str) -> Tuple[str, str, int, int]:
 # Start
 @xbot.on_message(filters.command('start') & filters.group)
 async def _start(bot, update):
-  await update.reply_text(f"I'm TikTokDL!\nYou can download tiktok url video/audio using this bot", True, reply_markup=InlineKeyboardMarkup(START_BUTTONS))
+  await update.reply_text(f"I'm Tik-Tok-download!\nYou can download tiktok url video/audio using this bot", True, reply_markup=InlineKeyboardMarkup(START_BUTTONS))
 
 # Downloader for tiktok
 @xbot.on_message(filters.regex(pattern='.*http.*') & filters.group)
