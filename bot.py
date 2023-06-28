@@ -49,12 +49,12 @@ async def run_cmd(cmd: str) -> Tuple[str, str, int, int]:
   )
 
 # Start
-@xbot.on_message(filters.command('start') & filters.private)
+@xbot.on_message(filters.command('start') & filters.group)
 async def _start(bot, update):
   await update.reply_text(f"I'm TikTokDL!\nYou can download tiktok url video/audio using this bot", True, reply_markup=InlineKeyboardMarkup(START_BUTTONS))
 
 # Downloader for tiktok
-@xbot.on_message(filters.regex(pattern='.*http.*') & filters.private)
+@xbot.on_message(filters.regex(pattern='.*http.*') & filters.group)
 async def _tiktok(bot, update):
   url = update.text
   session = requests.Session()
