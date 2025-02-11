@@ -4,7 +4,6 @@ from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 
 
-#ggggggg
 # Configs
 API_HASH = os.environ['API_HASH']
 APP_ID = int(os.environ['APP_ID'])
@@ -17,7 +16,7 @@ START_BUTTONS=[
         InlineKeyboardButton("Source", url="https://github.com/TEAM-DLK/Tik-Tok-download"),
         InlineKeyboardButton("Project Channel", url="https://t.me/DOOZY_OFF"),
     ],
-    [InlineKeyboardButton("Author", url="ggg")],
+    [InlineKeyboardButton("Author", url="http://t.me/iiiIiiiAiiiMiii")],
 ]
 
 DL_BUTTONS=[
