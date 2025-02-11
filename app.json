@@ -1,40 +1,42 @@
 {
-  "name": "Tik-Tok-download",
-  "description": "A bot that allows users to download TikTok videos and audio.",
-  "keywords": ["TikTok", "download", "bot"],
-  "repository": "https://github.com/yourusername/Tik-Tok-download",
-  "logo": "https://yourwebsite.com/logo.png",
+  "name": "TɪᴋTᴏᴋ ᴅᴏᴡɴʟᴏᴀᴅᴇʀ",
+  "description": "Telegram Bot to Download Tiktok video/audio.",
+  "logo": "https://telegra.ph/file/76ac770b698d2336ad134.png",
+  "keywords": [
+    "telegram",
+    "best",
+    "video",
+    "tiktok"
+  ],
+  "success_url": "https://github.com/doozylab-lk/Tik-Tok-download",
+  "website": "https://github.com/doozylab-lk",
+  "repository": "https://github.com/doozylab-lk/Tik-Tok-download",
   "env": {
-    "API_HASH": {
-      "description": "Your Telegram API hash.",
-      "generator": "secret"
+    "BOT_TOKEN": {
+      "description": "Your bot token, as a string.",
+      "value": ""
     },
     "APP_ID": {
-      "description": "Your Telegram application ID.",
-      "generator": "secret"
+      "description": "Get this value from https://my.telegram.org",
+      "value": ""
     },
-    "BOT_TOKEN": {
-      "description": "Your Telegram bot token.",
-      "generator": "secret"
+    "API_HASH": {
+      "description": "Get this value from https://my.telegram.org",
+      "value": ""
     }
   },
   "addons": [
-    "heroku-postgresql:hobby-dev",
-    "heroku-redis:hobby-dev"
   ],
-  "buildpacks": [
-    {
-      "url": "heroku/python"
-    }
-  ],
+  "buildpacks": [{
+    "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest"
+  }, {
+    "url": "heroku/python"
+  }],
+  "stack": "heroku-22",
   "formation": {
-    "web": {
+    "worker": {
       "quantity": 1,
       "size": "eco"
     }
-  },
-  "success_url": "/",
-  "scripts": {
-    "postdeploy": "echo 'Deployment complete!'"
   }
 }
