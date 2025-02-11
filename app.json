@@ -1,0 +1,40 @@
+{
+  "name": "Tik-Tok-download",
+  "description": "A bot that allows users to download TikTok videos and audio.",
+  "keywords": ["TikTok", "download", "bot"],
+  "repository": "https://github.com/yourusername/Tik-Tok-download",
+  "logo": "https://yourwebsite.com/logo.png",
+  "env": {
+    "API_HASH": {
+      "description": "Your Telegram API hash.",
+      "generator": "secret"
+    },
+    "APP_ID": {
+      "description": "Your Telegram application ID.",
+      "generator": "secret"
+    },
+    "BOT_TOKEN": {
+      "description": "Your Telegram bot token.",
+      "generator": "secret"
+    }
+  },
+  "addons": [
+    "heroku-postgresql:hobby-dev",
+    "heroku-redis:hobby-dev"
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ],
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "eco"
+    }
+  },
+  "success_url": "/",
+  "scripts": {
+    "postdeploy": "echo 'Deployment complete!'"
+  }
+}
