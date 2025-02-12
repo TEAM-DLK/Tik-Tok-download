@@ -1,4 +1,4 @@
-# app.py
+# bot.py
 
 import os
 import uuid
@@ -9,7 +9,12 @@ from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 
 # Initialize the bot client
-bot = Client('Tik-Tok-download', api_id=APP_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
+bot = Client(
+    'Tik-Tok-download',
+    api_id=APP_ID,
+    api_hash=API_HASH,
+    bot_token=BOT_TOKEN
+)
 
 # Inline Keyboard Buttons
 START_BUTTONS = [
@@ -33,50 +38,93 @@ DL_BUTTONS = [
 async def start(bot, update):
     await update.reply_text(
         "I'm Tik-Tok-download!\nYou can download TikTok videos or audio using this bot.",
-        True,
         reply_markup=InlineKeyboardMarkup(START_BUTTONS)
     )
 
 # Message handler for TikTok URLs
-@bot.on_message(filters.regex(pattern='.*http.*') & filters.group)
-async def tiktok(bot, update):
+@bot.on_message(filters.regex(r'http.*') & filters.group)
+async def tiktok_handler(bot, update):
     url = update.text
     session = requests.Session()
-    resp = session.head(url, allow_redirects=True)
-    if 'tiktok.com' not in resp.url:
-        return
-    await update.reply('Select the options below', True, reply_markup=InlineKeyboardMarkup(DL_BUTTONS))
+    try:
+        resp = session.head(url, allow_redirects=True)
+        if 'tiktok.com' not in resp.url:
+            return
+        await update.reply(
+            'Select download option:',
+            reply_markup=InlineKeyboardMarkup(DL_BUTTONS)
+        )
+    except Exception as e:
+        await update.reply_text(f"Error validating URL: {str(e)}")
 
 # Callback query handler
 @bot.on_callback_query()
-async def callbacks(bot, cb: CallbackQuery):
-    if cb.data in ['nowm', 'wm', 'audio']:
-        dirs = DOWNLOADS_DIR.format(uuid.uuid4().hex)
-        os.makedirs(dirs)
+async def callback_handler(bot, cb: CallbackQuery):
+    try:
+        if cb.data not in ['nowm', 'wm', 'audio']:
+            return
+
+        # Create unique temp directory
+        dir_id = uuid.uuid4().hex
+        temp_dir = os.path.join(DOWNLOADS_DIR, dir_id)
+        os.makedirs(temp_dir, exist_ok=True)
+
         update = cb.message.reply_to_message
         await cb.message.delete()
         url = update.text
-        session = requests.Session()
-        resp = session.head(url, allow_redirects=True)
-        tt = resp.url.split('?', 1)[0] if '?' in resp.url else resp.url
-        ttid = dirs + tt.split('/')[-1]
-        r = requests.get(f'https://api.reiyuura.me/api/dl/tiktok?url={tt}')
-        result = r.text
-        rs = result.json()
-        link = rs['result'][cb.data]
-        resp = session.head(link, allow_redirects=True)
-        r = requests.get(resp.url, allow_redirects=True)
-        with open(f'{ttid}.mp4', 'wb') as f:
-            f.write(r.content)
-        if cb.data == 'nowm':
-            await bot.send_video(update.chat.id, f'{ttid}.mp4')
-        elif cb.data == 'wm':
-            await bot.send_video(update.chat.id, f'{ttid}.mp4')
-        elif cb.data == 'audio':
-            cmd = f'ffmpeg -i "{ttid}.mp4" -vn -ar 44100 -ac 2 -ab 192 -f mp3 "{ttid}.mp3"'
-            os.system(cmd)
-            await bot.send_audio(update.chat.id, f'{ttid}.mp3')
-        shutil.rmtree(dirs)
 
-# Run the bot
-bot.run()
+        # Resolve final URL
+        with requests.Session() as session:
+            resp = session.head(url, allow_redirects=True)
+            clean_url = resp.url.split('?', 1)[0] if '?' in resp.url else resp.url
+            video_id = clean_url.split('/')[-1].split('?')[0]
+            
+            # Fetch TikTok metadata
+            api_response = session.get(
+                f'https://api.reiyuura.me/api/dl/tiktok?url={clean_url}'
+            )
+            api_response.raise_for_status()
+            data = api_response.json()
+
+            # Download selected media
+            media_url = data['result'][cb.data]
+            media_response = session.get(media_url, stream=True)
+            media_response.raise_for_status()
+
+            file_path = os.path.join(temp_dir, f"{video_id}.mp4")
+            with open(file_path, 'wb') as f:
+                for chunk in media_response.iter_content(chunk_size=1024):
+                    if chunk:
+                        f.write(chunk)
+
+            # Handle different media types
+            if cb.data in ['nowm', 'wm']:
+                await bot.send_video(
+                    chat_id=update.chat.id,
+                    video=file_path,
+                    caption="Downloaded via @YourBot"
+                )
+            elif cb.data == 'audio':
+                audio_path = os.path.join(temp_dir, f"{video_id}.mp3")
+                os.system(
+                    f'ffmpeg -i "{file_path}" -vn -ar 44100 -ac 2 -ab 192k "{audio_path}"'
+                )
+                await bot.send_audio(
+                    chat_id=update.chat.id,
+                    audio=audio_path
+                )
+
+    except requests.exceptions.RequestException as e:
+        await cb.message.reply_text(f"API Error: {str(e)}")
+    except KeyError:
+        await cb.message.reply_text("Invalid API response format")
+    except Exception as e:
+        await cb.message.reply_text(f"Unexpected error: {str(e)}")
+    finally:
+        # Cleanup temp files
+        if os.path.exists(temp_dir):
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+if __name__ == "__main__":
+    print("Bot started...")
+    bot.run()
