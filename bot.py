@@ -81,7 +81,7 @@ async def callback_handler(bot, cb: CallbackQuery):
             
             # Fetch TikTok metadata
             api_response = session.get(
-                f'https://tikmate.app/api/lookup?url={clean_url}'
+                f'https://snaptik.app/api/get?url={clean_url}'
             )
             api_response.raise_for_status()
             data = api_response.json()
