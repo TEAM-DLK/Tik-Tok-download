@@ -126,5 +126,22 @@ async def callback_handler(bot, cb: CallbackQuery):
             shutil.rmtree(temp_dir, ignore_errors=True)
 
 if __name__ == "__main__":
-    print("Bot started...")
-    bot.run()
+    import asyncio
+    print("Bot starting...")
+    
+    # Start Pyrogram client
+    async def main():
+        await bot.start()
+        print("Bot started successfully!")
+        # Keep the process alive
+        while True:
+            await asyncio.sleep(3600)  # Sleep for 1 hour
+    
+    loop = asyncio.get_event_loop()
+    try:
+        loop.run_until_complete(main())
+    except KeyboardInterrupt:
+        pass
+    finally:
+        loop.run_until_complete(bot.stop())
+        print("Bot stopped")
