@@ -3,7 +3,7 @@ from telegram import Update
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 
 # Your Telegram bot token from BotFather
-TELEGRAM_API_TOKEN = 'YOUR_BOT_API_TOKEN'
+TELEGRAM_API_TOKEN = '6045936754:AAFnmUzK2h59YPGTdx9Ak6oIWPvh1oST_KU'
 
 # Function to get the TikTok video without watermark
 def get_tiktok_video(link: str) -> str:
