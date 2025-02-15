@@ -1,8 +1,8 @@
 import requests
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackContext
+from telegram.ext.filters import Text
 
-# Your Telegram bot token from BotFather
 TELEGRAM_API_TOKEN = '6045936754:AAFnmUzK2h59YPGTdx9Ak6oIWPvh1oST_KU'
 
 # Function to get the TikTok video without watermark
@@ -35,8 +35,8 @@ def main() -> None:
     # Adding command handlers
     dispatcher.add_handler(CommandHandler("start", start))
     
-    # Adding message handler
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
+    # Adding message handler with the updated filter
+    dispatcher.add_handler(MessageHandler(Text(), handle_message))
     
     # Start the bot
     updater.start_polling()
