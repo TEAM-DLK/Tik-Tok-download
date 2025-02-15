@@ -1,77 +1,46 @@
-import telebot
 import requests
-from io import BytesIO
+from telegram import Update
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 
-# Replace with your Telegram Bot Token from @BotFather
-BOT_TOKEN = "6045936754:AAFnmUzK2h59YPGTdx9Ak6oIWPvh1oST_KU"
+# Your Telegram bot token from BotFather
+TELEGRAM_API_TOKEN = 'YOUR_BOT_API_TOKEN'
 
-# TikCD API URL
-TIKCD_API_URL = "https://tikcd.com/api/video?url={}"
+# Function to get the TikTok video without watermark
+def get_tiktok_video(link: str) -> str:
+    api_url = f"https://tikcd.com/api/v1/tiktok?url={link}&no_watermark=true"
+    response = requests.get(api_url)
+    if response.status_code == 200:
+        data = response.json()
+        return data.get("download_url", "Failed to get the download URL.")
+    return "Failed to download the video."
 
-# Custom headers to avoid bot detection
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-}
+# Command to start bot
+def start(update: Update, context: CallbackContext) -> None:
+    update.message.reply_text('Hello! Send me a TikTok link, and I will fetch the video without a watermark.')
 
-# Initialize the Telegram bot
-bot = telebot.TeleBot(BOT_TOKEN)
-
-@bot.message_handler(commands=['start'])
-def start(message):
-    bot.reply_to(message, "🎥 Send me a TikTok video link, and I'll download it for you!")
-
-@bot.message_handler(func=lambda message: message.text.startswith("http"))
-def download_tiktok_video(message):
-    video_link = message.text.strip()
-
-    # Fetch the TikTok video URL using TikCD API
-    video_url = fetch_tiktok_url(video_link)
-
-    # If successful, download and send the video
-    if video_url:
-        bot.send_message(message.chat.id, "🔄 Downloading video...")
-        send_video_to_telegram(message.chat.id, video_url)
+# Function to handle received messages
+def handle_message(update: Update, context: CallbackContext) -> None:
+    text = update.message.text
+    if "tiktok.com" in text:
+        video_url = get_tiktok_video(text)
+        update.message.reply_text(f"Here is your video: {video_url}")
     else:
-        bot.reply_to(message, "⚠️ Failed to fetch the video. Try another link.")
+        update.message.reply_text("Please send a valid TikTok link.")
 
-def fetch_tiktok_url(video_link):
-    """
-    Fetch the TikTok video URL from TikCD API.
-    """
-    try:
-        api_url = TIKCD_API_URL.format(video_link)
-        response = requests.get(api_url, headers=HEADERS)
-        print(f"🔍 API Request: {api_url}")
-        print(f"🔍 API Response Code: {response.status_code}")
-        print(f"🔍 API Response Text: {response.text}")  # Debugging
+# Main function to run the bot
+def main() -> None:
+    updater = Updater(TELEGRAM_API_TOKEN)
+    dispatcher = updater.dispatcher
+    
+    # Adding command handlers
+    dispatcher.add_handler(CommandHandler("start", start))
+    
+    # Adding message handler
+    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
+    
+    # Start the bot
+    updater.start_polling()
+    updater.idle()
 
-        if response.status_code == 200:
-            data = response.json()
-            return data.get("video_url")  # Adjust based on the API response structure
-
-        print("❌ API returned an error.")
-        return None
-
-    except requests.exceptions.RequestException as e:
-        print(f"🚨 Network error: {str(e)}")
-        return None
-
-def send_video_to_telegram(chat_id, video_url):
-    """
-    Download and send the TikTok video to Telegram.
-    """
-    try:
-        # Download the video content
-        video_data = requests.get(video_url, headers=HEADERS)
-        
-        # If video data is fetched successfully, send to Telegram
-        if video_data.status_code == 200:
-            video_file = BytesIO(video_data.content)  # Convert to BytesIO for Telegram API
-            bot.send_video(chat_id, video_file, caption="🎥 Here is your TikTok video without watermark!")
-        else:
-            bot.send_message(chat_id, "⚠️ Failed to download the video. Please try again.")
-    except Exception as e:
-        bot.send_message(chat_id, f"⚠️ Failed to send video. Error: {str(e)}")
-
-# Start the bot
-bot.polling()
+if __name__ == '__main__':
+    main()
