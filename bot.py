@@ -11,8 +11,13 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=lo
 # Telegram bot token (Replace with your actual token)
 TOKEN = "6045936754:AAFnmUzK2h59YPGTdx9Ak6oIWPvh1oST_KU"
 
-# API URL (Make sure it's correct)
-API_URL = "https://subhatde.id.vn/tiktok/downloadvideo?url={}"
+# API URL for fetching the play link
+API_URL = "https://subhatde.id.vn/tiktok/play?url={}"  # Make sure this is the correct API
+
+# Headers to avoid request blocking
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+}
 
 async def start(update: Update, context: CallbackContext) -> None:
     await update.message.reply_text("Send me a TikTok video link, and I'll fetch the play link for you!")
@@ -21,11 +26,11 @@ async def handle_message(update: Update, context: CallbackContext) -> None:
     user_text = update.message.text
 
     if "tiktok.com" not in user_text:
-        await update.message.reply_text("Please send a valid TikTok video link.")
+        await update.message.reply_text("❌ Please send a valid TikTok video link.")
         return
 
-    # Call API
-    response = requests.get(API_URL.format(user_text))
+    # Call API with headers
+    response = requests.get(API_URL.format(user_text), headers=headers)
     
     if response.status_code == 200:
         try:
@@ -41,14 +46,14 @@ async def handle_message(update: Update, context: CallbackContext) -> None:
                 # Send play link to user
                 await update.message.reply_text(f"▶️ *Play Link:* [Click Here]({play_url})", parse_mode="Markdown", disable_web_page_preview=True)
             else:
-                await update.message.reply_text("Failed to retrieve play link. Please try again.")
+                await update.message.reply_text("⚠️ Failed to retrieve play link. Please try again.")
         
         except Exception as e:
-            await update.message.reply_text("Error processing response. Please try again.")
+            await update.message.reply_text("⚠️ Error processing response. Please try again.")
             logging.error(f"Error: {e}")
 
     else:
-        await update.message.reply_text(f"API Error: {response.status_code}. Check API.")
+        await update.message.reply_text(f"⚠️ API Error: {response.status_code}. Check API.")
 
 def main():
     app = Application.builder().token(TOKEN).build()
