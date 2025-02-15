@@ -1,12 +1,14 @@
-# bot.py
-
 import os
 import uuid
 import shutil
 import requests
+import logging
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
-from config import API_ID, API_HASH, BOT_TOKEN, DOWNLOADS_DIR
+from config import API_ID, API_HASH, BOT_TOKEN
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
 
 # Initialize the bot client
 bot = Client(
@@ -61,12 +63,12 @@ async def callback_handler(bot, callback_query: CallbackQuery):
         return
 
     url = user_message.text.strip()
-    temp_dir = os.path.join(DOWNLOADS_DIR, str(uuid.uuid4()))
+    temp_dir = '/tmp'  # Use Heroku's temp directory
     os.makedirs(temp_dir, exist_ok=True)
 
     try:
         # Fetch TikTok video data
-        api_url = f'https://api.tiktokdownloader.com/?url={url}'
+        api_url = f'https://subhatde.id.vn/tiktok/downloadvideo?url={url}'
         response = requests.get(api_url)
         response.raise_for_status()
         video_data = response.json()
@@ -96,9 +98,12 @@ async def callback_handler(bot, callback_query: CallbackQuery):
             await bot.send_video(chat_id=user_message.chat.id, video=file_path)
 
     except Exception as e:
+        logging.error(f"Error: {str(e)}")
         await message.reply_text(f"An error occurred: {str(e)}")
     finally:
-        shutil.rmtree(temp_dir, ignore_errors=True)
+        # Cleanup the temp directory (although it's not strictly necessary for Heroku)
+        if os.path.exists(temp_dir):
+            shutil.rmtree(temp_dir, ignore_errors=True)
 
 if __name__ == "__main__":
     bot.run()
