@@ -5,4 +5,4 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Retrieve the bot token from environment variables
-BOT_TOKEN = os.getenv('BOT_TOKEN')
+TELEGRAM_TOKEN = os.getenv('BOT_TOKEN')
