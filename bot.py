@@ -15,8 +15,24 @@ logger = logging.getLogger(__name__)
 
 # Define the API URL and function to get the TikTok video
 def get_tiktok_video(video_url):
-    api_url = f"https://api.sumiproject.net/tiktok?video={video_url}"
-    response = requests.get(api_url)
+    # Get the API ID and hash from environment variables
+    api_id = os.getenv("API_ID")
+    api_hash = os.getenv("API_HASH")
+    
+    # Make sure we have API credentials
+    if not api_id or not api_hash:
+        logger.error("API_ID or API_HASH not found in environment variables!")
+        return None
+
+    # Add API ID and hash to the request parameters
+    params = {
+        "video": video_url,
+        "api_id": api_id,
+        "api_hash": api_hash
+    }
+
+    api_url = "https://api.sumiproject.net/tiktok"
+    response = requests.get(api_url, params=params)
 
     # Log the status code and response text for debugging
     if response.status_code == 200:
