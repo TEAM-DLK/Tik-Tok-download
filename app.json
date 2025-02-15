@@ -1,42 +1,30 @@
 {
-  "name": "TɪᴋTᴏᴋ ᴅᴏᴡɴʟᴏᴀᴅᴇʀ",
-  "description": "Telegram Bot to Download Tiktok video/audio.",
-  "logo": "https://telegra.ph/file/76ac770b698d2336ad134.png",
-  "keywords": [
-    "telegram",
-    "best",
-    "video",
-    "tiktok"
-  ],
-  "success_url": "https://github.com/doozylab-lk/Tik-Tok-download",
-  "website": "https://github.com/doozylab-lk",
-  "repository": "https://github.com/doozylab-lk/Tik-Tok-download",
+  "name": "tiktok-downloader-bot",
+  "description": "A Telegram bot that downloads TikTok videos without watermarks.",
+  "repository": "https://github.com/YourUsername/tiktok-downloader-bot",
+  "keywords": ["python", "telegram", "bot", "tiktok", "downloader"],
   "env": {
-    "BOT_TOKEN": {
-      "description": "Your bot token, as a string.",
-      "value": ""
-    },
-    "APP_ID": {
-      "description": "Get this value from https://my.telegram.org",
-      "value": ""
+    "API_ID": {
+      "description": "Your Telegram API ID",
+      "required": true
     },
     "API_HASH": {
-      "description": "Get this value from https://my.telegram.org",
-      "value": ""
+      "description": "Your Telegram API Hash",
+      "required": true
+    },
+    "BOT_TOKEN": {
+      "description": "Your Telegram Bot Token",
+      "required": true
+    },
+    "DOWNLOADS_DIR": {
+      "description": "Directory for storing downloads",
+      "required": true,
+      "value": "downloads/"
     }
   },
-  "addons": [
-  ],
-  "buildpacks": [{
-    "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest"
-  }, {
-    "url": "heroku/python"
-  }],
-  "stack": "heroku-22",
-  "formation": {
-    "worker": {
-      "quantity": 1,
-      "size": "eco"
+  "buildpacks": [
+    {
+      "url": "heroku/python"
     }
-  }
+  ]
 }
