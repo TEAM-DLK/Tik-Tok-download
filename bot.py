@@ -4,8 +4,8 @@ import requests
 # ✅ Replace with your actual Telegram Bot Token
 BOT_TOKEN = "6045936754:AAFnmUzK2h59YPGTdx9Ak6oIWPvh1oST_KU"
 
-# ✅ Working API for downloading TikTok videos
-TIKTOK_API_URL = "https://ssstik.io/api/get?url={}"
+# ✅ New working API for TikTok video download (no watermark)
+TIKTOK_API_URL = "https://tikcdn.io/api/download/{}/noWatermark"
 
 # Custom headers to prevent bot detection
 HEADERS = {
@@ -48,28 +48,23 @@ def resolve_tiktok_redirect(url):
 
 def fetch_tiktok_url(video_link, api_url):
     """
-    Fetch the TikTok video URL from the given API.
+    Fetch the TikTok video URL from an alternative API.
     """
     try:
         full_url = api_url.format(video_link)
         response = requests.get(full_url, headers=HEADERS)
 
-        print(f"API Request: {full_url}")  # Debugging
-        print(f"API Response Code: {response.status_code}")
-        print(f"API Response Text: {response.text}")
+        print(f"🔍 API Request: {full_url}")
+        print(f"🔍 API Response Code: {response.status_code}")
+        print(f"🔍 API Response Text: {response.text}")  # Debugging
 
         # Check if the API response is valid
         if response.status_code == 200:
             data = response.json()
-            return data.get("url")
+            return data.get("video")  # Adjust based on the actual API response
 
-        elif response.status_code == 404:
-            print("❌ API returned 404 Not Found. The endpoint may be broken.")
-            return None
-
-        else:
-            print(f"❌ API failed with status {response.status_code}.")
-            return None
+        print("❌ API returned an error.")
+        return None
 
     except requests.exceptions.RequestException as e:
         print(f"🚨 Network error: {str(e)}")
