@@ -9,7 +9,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 # Telegram bot token (Replace with your actual token)
-TOKEN = "YOUR_BOT_TOKEN"
+TOKEN = "6045936754:AAFnmUzK2h59YPGTdx9Ak6oIWPvh1oST_KU"
 
 # API URL (Make sure it's correct)
 API_URL = "https://subhatde.id.vn/tiktok/downloadvideo?url={}"
