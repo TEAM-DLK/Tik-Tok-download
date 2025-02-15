@@ -12,7 +12,7 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=lo
 TOKEN = "6045936754:AAFnmUzK2h59YPGTdx9Ak6oIWPvh1oST_KU"
 
 # API URL for fetching the play link
-API_URL = "https://subhatde.id.vn/tiktok/play?url="  # Make sure this is the correct API
+API_URL = "https://subhatde.id.vn/tiktok/downloadvideo?="  # Make sure this is the correct API
 
 # Headers to avoid request blocking
 headers = {
