@@ -5,6 +5,7 @@ import requests
 import logging
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
+from requests.exceptions import RequestException
 from config import API_ID, API_HASH, BOT_TOKEN
 
 # Set up logging
@@ -69,7 +70,7 @@ async def callback_handler(bot, callback_query: CallbackQuery):
     try:
         # Fetch TikTok video data
         api_url = f'https://subhatde.id.vn/tiktok/downloadvideo?url={url}'
-        response = requests.get(api_url)
+        response = requests.get(api_url, timeout=30)  # Set a 30-second timeout
         response.raise_for_status()
         video_data = response.json()
 
@@ -81,7 +82,7 @@ async def callback_handler(bot, callback_query: CallbackQuery):
             download_url = video_data['audio']
 
         # Download the media
-        media_response = requests.get(download_url, stream=True)
+        media_response = requests.get(download_url, stream=True, timeout=30)  # Timeout for media download
         media_response.raise_for_status()
 
         file_extension = 'mp4' if data != 'audio' else 'mp3'
@@ -97,11 +98,14 @@ async def callback_handler(bot, callback_query: CallbackQuery):
         else:
             await bot.send_video(chat_id=user_message.chat.id, video=file_path)
 
-    except Exception as e:
-        logging.error(f"Error: {str(e)}")
+    except RequestException as e:
+        logging.error(f"Request failed: {str(e)}")
         await message.reply_text(f"An error occurred: {str(e)}")
+    except Exception as e:
+        logging.error(f"Unexpected error: {str(e)}")
+        await message.reply_text(f"An unexpected error occurred: {str(e)}")
     finally:
-        # Cleanup the temp directory (although it's not strictly necessary for Heroku)
+        # Cleanup the temp directory
         if os.path.exists(temp_dir):
             shutil.rmtree(temp_dir, ignore_errors=True)
 
