@@ -1,7 +1,6 @@
 import requests
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackContext
-from telegram.ext.filters import Text
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
 
 TELEGRAM_API_TOKEN = '6045936754:AAFnmUzK2h59YPGTdx9Ak6oIWPvh1oST_KU'
 
@@ -15,32 +14,31 @@ def get_tiktok_video(link: str) -> str:
     return "Failed to download the video."
 
 # Command to start bot
-def start(update: Update, context: CallbackContext) -> None:
-    update.message.reply_text('Hello! Send me a TikTok link, and I will fetch the video without a watermark.')
+async def start(update: Update, context: CallbackContext) -> None:
+    await update.message.reply_text('Hello! Send me a TikTok link, and I will fetch the video without a watermark.')
 
 # Function to handle received messages
-def handle_message(update: Update, context: CallbackContext) -> None:
+async def handle_message(update: Update, context: CallbackContext) -> None:
     text = update.message.text
     if "tiktok.com" in text:
         video_url = get_tiktok_video(text)
-        update.message.reply_text(f"Here is your video: {video_url}")
+        await update.message.reply_text(f"Here is your video: {video_url}")
     else:
-        update.message.reply_text("Please send a valid TikTok link.")
+        await update.message.reply_text("Please send a valid TikTok link.")
 
 # Main function to run the bot
 def main() -> None:
-    updater = Updater(TELEGRAM_API_TOKEN)
-    dispatcher = updater.dispatcher
-    
+    # Create the application and pass the bot token
+    application = Application.builder().token(TELEGRAM_API_TOKEN).build()
+
     # Adding command handlers
-    dispatcher.add_handler(CommandHandler("start", start))
-    
-    # Adding message handler with the updated filter
-    dispatcher.add_handler(MessageHandler(Text(), handle_message))
-    
-    # Start the bot
-    updater.start_polling()
-    updater.idle()
+    application.add_handler(CommandHandler("start", start))
+
+    # Adding message handler
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+
+    # Start polling the bot
+    application.run_polling()
 
 if __name__ == '__main__':
     main()
