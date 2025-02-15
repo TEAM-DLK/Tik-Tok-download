@@ -2,7 +2,7 @@ import telebot
 import requests
 
 # Replace with your Telegram Bot Token from @BotFather
-BOT_TOKEN = "YOUR_BOT_TOKEN"
+BOT_TOKEN = "6045936754:AAFnmUzK2h59YPGTdx9Ak6oIWPvh1oST_KU"
 
 # Alternative API (ssstik.io)
 TIKTOK_API_URL = "https://api.sumiproject.net/tiktok?video={}"
