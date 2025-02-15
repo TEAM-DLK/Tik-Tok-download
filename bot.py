@@ -23,7 +23,7 @@ def download_video(update: Update, context: CallbackContext) -> None:
         update.message.reply_text('Please provide a TikTok video URL.')
 
 def main() -> None:
-    updater = Updater(BOT_TOKEN)
+    updater = Updater(8000339832:AAF_e9ycYPZ_vQM5ioCokvjX_iunouNjuJA)
     dispatcher = updater.dispatcher
     dispatcher.add_handler(CommandHandler('start', start))
     dispatcher.add_handler(CommandHandler('download', download_video))
