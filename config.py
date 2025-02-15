@@ -8,7 +8,7 @@ load_dotenv()
 API_ID = int(os.getenv('API_ID'))
 API_HASH = os.getenv('API_HASH')
 BOT_TOKEN = os.getenv('BOT_TOKEN')
-DOWNLOADS_DIR = os.getenv('DOWNLOADS_DIR', 'downloads/')
+DOWNLOADS_DIR = os.getenv('DOWNLOADS_DIR', '/tmp')
 
 # Ensure all variables are loaded
 required_vars = ['API_ID', 'API_HASH', 'BOT_TOKEN']
