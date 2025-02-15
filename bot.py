@@ -17,8 +17,23 @@ logger = logging.getLogger(__name__)
 def get_tiktok_video(video_url):
     api_url = f"https://api.sumiproject.net/tiktok?video={video_url}"
     response = requests.get(api_url)
-    data = response.json()
-    return data.get('download_url')
+
+    # Log the status code and response text for debugging
+    if response.status_code == 200:
+        try:
+            # Try to parse the JSON response
+            data = response.json()
+            # Log the response to check its content
+            logger.info(f"API response: {data}")
+            return data.get('download_url')
+        except ValueError:
+            # If the response is not valid JSON
+            logger.error(f"Error parsing JSON response: {response.text}")
+            return None
+    else:
+        # If the API request failed, log the error
+        logger.error(f"API request failed with status code {response.status_code}: {response.text}")
+        return None
 
 # Start Command
 async def start(update: Update, context: CallbackContext) -> None:
