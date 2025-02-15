@@ -1,21 +1,21 @@
 import logging
 import requests
 import json
-from bs4 import BeautifulSoup
+import re
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-# Telegram bot token (Replace with your bot token)
-TOKEN = "6045936754:AAFnmUzK2h59YPGTdx9Ak6oIWPvh1oST_KU"
+# Telegram bot token (Replace with your actual token)
+TOKEN = "YOUR_BOT_TOKEN"
 
-# API URL
+# API URL (Make sure it's correct)
 API_URL = "https://subhatde.id.vn/tiktok/downloadvideo?url={}"
 
 async def start(update: Update, context: CallbackContext) -> None:
-    await update.message.reply_text("Send me a TikTok video link, and I'll fetch the download link for you!")
+    await update.message.reply_text("Send me a TikTok video link, and I'll fetch the play link for you!")
 
 async def handle_message(update: Update, context: CallbackContext) -> None:
     user_text = update.message.text
@@ -29,30 +29,26 @@ async def handle_message(update: Update, context: CallbackContext) -> None:
     
     if response.status_code == 200:
         try:
-            # Extract JSON from HTML response
-            soup = BeautifulSoup(response.text, "html.parser")
-            json_text = soup.find("pre").text
+            # Extract JSON from API response (Remove HTML tags)
+            json_text = re.search(r'<pre.*?>(.*?)</pre>', response.text, re.DOTALL).group(1)
             data = json.loads(json_text)
 
             # Check if response contains video data
             if data.get("code") == 0 and "data" in data:
                 video_data = data["data"]
-                title = video_data.get("title", "No Title")
-                video_url = video_data.get("play", "No Video Link")
-                music_url = video_data.get("music", "No Music Link")
+                play_url = video_data.get("play", "No Play Link Available")
 
-                # Send response to user
-                message = f"🎬 *Video Title:* {title}\n\n📥 *Download Video:* [Click Here]({video_url})\n🎵 *Music:* [Click Here]({music_url})"
-                await update.message.reply_text(message, parse_mode="Markdown", disable_web_page_preview=True)
+                # Send play link to user
+                await update.message.reply_text(f"▶️ *Play Link:* [Click Here]({play_url})", parse_mode="Markdown", disable_web_page_preview=True)
             else:
-                await update.message.reply_text("Failed to retrieve video data. Please try again.")
+                await update.message.reply_text("Failed to retrieve play link. Please try again.")
         
         except Exception as e:
             await update.message.reply_text("Error processing response. Please try again.")
             logging.error(f"Error: {e}")
 
     else:
-        await update.message.reply_text("Failed to fetch video. Please try again.")
+        await update.message.reply_text(f"API Error: {response.status_code}. Check API.")
 
 def main():
     app = Application.builder().token(TOKEN).build()
