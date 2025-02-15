@@ -2,7 +2,7 @@ import telebot
 import requests
 
 # Telegram Bot Token from BotFather
-BOT_TOKEN = "YOUR_BOT_TOKEN"
+BOT_TOKEN = "6045936754:AAFnmUzK2h59YPGTdx9Ak6oIWPvh1oST_KU"
 
 # Initialize bot
 bot = telebot.TeleBot(BOT_TOKEN)
