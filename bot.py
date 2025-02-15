@@ -1,8 +1,12 @@
 import logging
+import os
+import requests
+from dotenv import load_dotenv
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
-import requests
-import os
+
+# Load environment variables from .env file (for local development)
+load_dotenv()
 
 # Set up logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -33,14 +37,19 @@ async def handle_message(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text("Please send a valid TikTok video link.")
 
 def main():
-    TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")  # Get the token from environment variables
+    # Get the Telegram Bot Token from environment variables
+    TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+    if not TELEGRAM_TOKEN:
+        raise ValueError("No TELEGRAM_TOKEN found in environment variables")
+
+    # Create the application instance
     application = Application.builder().token(TELEGRAM_TOKEN).build()
 
-    # Add handlers
+    # Add handlers for commands and messages
     application.add_handler(CommandHandler("start", start))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    # Start the Bot
+    # Start the bot
     application.run_polling()
 
 if __name__ == '__main__':
