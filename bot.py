@@ -1,5 +1,6 @@
 import telebot
 import requests
+from io import BytesIO
 
 # Replace with your Telegram Bot Token from @BotFather
 BOT_TOKEN = "6045936754:AAFnmUzK2h59YPGTdx9Ak6oIWPvh1oST_KU"
@@ -46,7 +47,7 @@ def fetch_tiktok_url(video_link):
 
         if response.status_code == 200:
             data = response.json()
-            return data.get("video_url")  # Adjust based on the API response
+            return data.get("video_url")  # Adjust based on the API response structure
 
         print("❌ API returned an error.")
         return None
@@ -60,8 +61,15 @@ def send_video_to_telegram(chat_id, video_url):
     Download and send the TikTok video to Telegram.
     """
     try:
-        video_data = requests.get(video_url, headers=HEADERS).content
-        bot.send_video(chat_id, video_data, caption="🎥 Here is your TikTok video!")
+        # Download the video content
+        video_data = requests.get(video_url, headers=HEADERS)
+        
+        # If video data is fetched successfully, send to Telegram
+        if video_data.status_code == 200:
+            video_file = BytesIO(video_data.content)  # Convert to BytesIO for Telegram API
+            bot.send_video(chat_id, video_file, caption="🎥 Here is your TikTok video without watermark!")
+        else:
+            bot.send_message(chat_id, "⚠️ Failed to download the video. Please try again.")
     except Exception as e:
         bot.send_message(chat_id, f"⚠️ Failed to send video. Error: {str(e)}")
 
