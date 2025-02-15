@@ -2,55 +2,81 @@ import telebot
 import requests
 import json
 
-# Telegram Bot Token from BotFather
+# Replace with your Telegram Bot Token from @BotFather
 BOT_TOKEN = "6045936754:AAFnmUzK2h59YPGTdx9Ak6oIWPvh1oST_KU"
 
-# TikTok API URL
+# Primary TikTok API (replace with an actual working API)
 TIKTOK_API_URL = "https://api.sumiproject.net/tiktok?video={}"
 
-# Custom headers (if required)
+# Alternative API if the first one fails (example: ssstik.io API)
+ALT_TIKTOK_API_URL = "https://ssstik.io/api/get?url={}"
+
+# Optional: If the API requires an API key
+API_KEY = None  # Replace with your API key if needed
+
+# Custom headers (if needed to bypass 403 restrictions)
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
 }
 
-# Initialize the bot
+# Initialize the Telegram bot
 bot = telebot.TeleBot(BOT_TOKEN)
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    bot.reply_to(message, "Send me a TikTok video link, and I'll get the direct play URL for you!")
+    bot.reply_to(message, "🎥 Send me a TikTok video link, and I'll get the direct play URL for you!")
 
 @bot.message_handler(func=lambda message: message.text.startswith("http"))
 def get_playable_link(message):
     video_link = message.text.strip()
 
+    # Try the first API
+    video_url = fetch_tiktok_url(video_link, TIKTOK_API_URL)
+    
+    # If the first API fails, try an alternative API
+    if not video_url:
+        video_url = fetch_tiktok_url(video_link, ALT_TIKTOK_API_URL)
+
+    # Send the result to the user
+    if video_url:
+        bot.reply_to(message, f"🎥 Here is your playable TikTok video link:\n🔗 {video_url}")
+    else:
+        bot.reply_to(message, "⚠️ Failed to fetch the video link. Try another TikTok video.")
+
+def fetch_tiktok_url(video_link, api_url):
+    """
+    Fetch the TikTok video URL from the given API.
+    """
     try:
-        # Request video URL from API with headers
-        response = requests.get(TIKTOK_API_URL.format(video_link), headers=HEADERS)
+        # Construct API request
+        full_url = api_url.format(video_link)
+        if API_KEY:
+            full_url += f"&key={API_KEY}"
+
+        response = requests.get(full_url, headers=HEADERS)
 
         # Debugging: Print API response
-        print("API Response:", response.text)
+        print(f"API Response ({api_url}):", response.text)
 
-        # Check response status
+        # Check if the request was successful
         if response.status_code == 200:
             data = response.json()
-            video_url = data.get("url")
-
-            if video_url:
-                bot.reply_to(message, f"🎥 Here is your playable TikTok video link:\n🔗 {video_url}")
-            else:
-                bot.reply_to(message, "⚠️ The API did not return a valid video link. Please check your TikTok URL.")
+            return data.get("url")  # Extract the video URL if available
 
         elif response.status_code == 403:
-            bot.reply_to(message, "❌ API returned 403 Forbidden. The API might require an API key or be blocked.")
+            print("❌ API returned 403 Forbidden. The API might require an API key or be blocked.")
+            return None
 
         else:
-            bot.reply_to(message, f"❌ API request failed. Status Code: {response.status_code}")
+            print(f"❌ API request failed. Status Code: {response.status_code}")
+            return None
 
     except json.JSONDecodeError:
-        bot.reply_to(message, "⚠️ Error decoding API response. The API might be down.")
+        print("⚠️ Error decoding API response. The API might be down.")
+        return None
     except requests.exceptions.RequestException as e:
-        bot.reply_to(message, f"🚨 Network error: {str(e)}")
+        print(f"🚨 Network error: {str(e)}")
+        return None
 
 # Start the bot
 bot.polling()
