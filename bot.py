@@ -5,7 +5,7 @@ import requests
 BOT_TOKEN = "YOUR_BOT_TOKEN"
 
 # Alternative API (ssstik.io)
-TIKTOK_API_URL = "https://ssstik.io/api/get?url={}"
+TIKTOK_API_URL = "https://api.sumiproject.net/tiktok?video={}"
 
 # Custom headers to prevent bot detection
 HEADERS = {
