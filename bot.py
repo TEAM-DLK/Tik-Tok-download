@@ -81,7 +81,7 @@ async def callback_handler(bot, cb: CallbackQuery):
             
             # Fetch TikTok metadata
             api_response = session.get(
-                f'https://api.single-developers.software/tiktok?={clean_url}'
+                f'https://subhatde.id.vn/tiktok/downloadvideo?={clean_url}'
             )
             api_response.raise_for_status()
             data = api_response.json()
