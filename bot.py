@@ -55,13 +55,20 @@ def fetch_tiktok_url(video_link, api_url):
 
         response = requests.get(full_url, headers=HEADERS)
 
-        # Debugging: Print API response
-        print(f"API Response ({api_url}):", response.text)
+        # Debugging: Print API request and response for better insights
+        print(f"API Request URL: {full_url}")
+        print(f"API Response Status Code: {response.status_code}")
+        print(f"API Response Text: {response.text}")
 
         # Check if the request was successful
         if response.status_code == 200:
-            data = response.json()
-            return data.get("url")  # Extract the video URL if available
+            try:
+                data = response.json()
+                print("API Response JSON:", data)  # Debugging: print raw response data
+                return data.get("url")  # Extract the video URL if available
+            except json.JSONDecodeError:
+                print("⚠️ Error decoding API response: Non-JSON response.")
+                return None
 
         elif response.status_code == 403:
             print("❌ API returned 403 Forbidden. The API might require an API key or be blocked.")
@@ -71,9 +78,6 @@ def fetch_tiktok_url(video_link, api_url):
             print(f"❌ API request failed. Status Code: {response.status_code}")
             return None
 
-    except json.JSONDecodeError:
-        print("⚠️ Error decoding API response. The API might be down.")
-        return None
     except requests.exceptions.RequestException as e:
         print(f"🚨 Network error: {str(e)}")
         return None
