@@ -9,7 +9,7 @@ def start(update: Update, context: CallbackContext) -> None:
 
 def download_video(update: Update, context: CallbackContext) -> None:
     if context.args:
-        url = f"https://subhatde.id.vn/tiktok/downloadvideo?url={context.args[0]}"
+        url = f"{API}={context.args[0]}"
         response = requests.get(url)
         if response.status_code == 200:
             video_url = response.json().get('video_url')
