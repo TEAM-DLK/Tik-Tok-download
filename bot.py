@@ -1,6 +1,6 @@
 import logging
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
 import requests
 import os
 
@@ -17,38 +17,31 @@ def get_tiktok_video(video_url):
     return data.get('download_url')
 
 # Start Command
-def start(update: Update, context: CallbackContext) -> None:
-    update.message.reply_text('Hello! Send me a TikTok video link, and I will download it for you.')
+async def start(update: Update, context: CallbackContext) -> None:
+    await update.message.reply_text('Hello! Send me a TikTok video link, and I will download it for you.')
 
 # Function to handle video link
-def handle_message(update: Update, context: CallbackContext) -> None:
+async def handle_message(update: Update, context: CallbackContext) -> None:
     text = update.message.text
     if "tiktok.com" in text:  # Simple check if the message contains a TikTok link
         download_url = get_tiktok_video(text)
         if download_url:
-            update.message.reply_text(f"Your TikTok video download link: {download_url}")
+            await update.message.reply_text(f"Your TikTok video download link: {download_url}")
         else:
-            update.message.reply_text("Sorry, I couldn't fetch the video. Please try again later.")
+            await update.message.reply_text("Sorry, I couldn't fetch the video. Please try again later.")
     else:
-        update.message.reply_text("Please send a valid TikTok video link.")
+        await update.message.reply_text("Please send a valid TikTok video link.")
 
 def main():
-    # Replace 'YOUR_BOT_TOKEN' with your actual bot token
     TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")  # Get the token from environment variables
-    updater = Updater(TELEGRAM_TOKEN)
-
-    # Get the dispatcher to register handlers
-    dispatcher = updater.dispatcher
+    application = Application.builder().token(TELEGRAM_TOKEN).build()
 
     # Add handlers
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     # Start the Bot
-    updater.start_polling()
-
-    # Run the bot until you send a stop command (Ctrl+C)
-    updater.idle()
+    application.run_polling()
 
 if __name__ == '__main__':
     main()
