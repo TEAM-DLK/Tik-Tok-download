@@ -12,29 +12,26 @@ TIKTOK_API_URL = "https://api.sumiproject.net/tiktok?video={}"
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    bot.reply_to(message, "Send me a TikTok video link, and I'll download it for you!")
+    bot.reply_to(message, "Send me a TikTok video link, and I'll get the direct play URL for you!")
 
 @bot.message_handler(func=lambda message: message.text.startswith("http"))
-def download_tiktok_video(message):
+def get_playable_link(message):
     video_link = message.text.strip()
     
     try:
-        # Fetch the video URL from the API
+        # Fetch the direct video URL from the API
         response = requests.get(TIKTOK_API_URL.format(video_link))
         if response.status_code == 200:
-            video_url = response.json().get("url")  # Ensure API returns "url"
+            data = response.json()
+            video_url = data.get("url")  # API should return direct video URL
 
-            # Download the video
-            video_data = requests.get(video_url).content
-            with open("tiktok_video.mp4", "wb") as video_file:
-                video_file.write(video_data)
-
-            # Send the video to the user
-            with open("tiktok_video.mp4", "rb") as video_file:
-                bot.send_video(message.chat.id, video_file, caption="Here is your TikTok video!")
+            if video_url:
+                bot.reply_to(message, f"Here is your playable TikTok video link:\n{video_url}")
+            else:
+                bot.reply_to(message, "Failed to get the video link. Try another video.")
 
         else:
-            bot.reply_to(message, "Failed to fetch video. Try again.")
+            bot.reply_to(message, "Error fetching video. Please try again.")
 
     except Exception as e:
         bot.reply_to(message, f"Error: {str(e)}")
