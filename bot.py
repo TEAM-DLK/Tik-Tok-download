@@ -1,68 +1,48 @@
-import logging
+import telebot
 import requests
-import json
-import re
-from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
 
-# Enable logging
-logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
+# Replace with your Telegram bot token
+TELEGRAM_BOT_TOKEN = "6045936754:AAEwmk2cNv19VSxEcKr4NaMjCNRk5I5AiZI"
+bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
 
-# Telegram bot token (Replace with your actual token)
-TOKEN = "6045936754:AAFnmUzK2h59YPGTdx9Ak6oIWPvh1oST_KU"
+TIKTOK_API_URL = "https://api.sumiproject.net/tiktok?video={}"
 
-# API URL for fetching the play link
-API_URL = "https://subhatde.id.vn/tiktok/downloadvideo?"  # Make sure this is the correct API
+@bot.message_handler(commands=["start"])
+def send_welcome(message):
+    bot.reply_to(message, "Send me a TikTok video link!")
 
-# Headers to avoid request blocking
-headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-}
+@bot.message_handler(func=lambda message: "tiktok.com" in message.text)
+def fetch_tiktok_video(message):
+    tiktok_url = message.text.strip()
+    api_url = TIKTOK_API_URL.format(tiktok_url)
 
-async def start(update: Update, context: CallbackContext) -> None:
-    await update.message.reply_text("Send me a TikTok video link, and I'll fetch the play link for you!")
-
-async def handle_message(update: Update, context: CallbackContext) -> None:
-    user_text = update.message.text
-
-    if "tiktok.com" not in user_text:
-        await update.message.reply_text("❌ Please send a valid TikTok video link.")
-        return
-
-    # Call API with headers
-    response = requests.get(API_URL.format(user_text), headers=headers)
-    
+    response = requests.get(api_url)
     if response.status_code == 200:
-        try:
-            # Extract JSON from API response (Remove HTML tags)
-            json_text = re.search(r'<pre.*?>(.*?)</pre>', response.text, re.DOTALL).group(1)
-            data = json.loads(json_text)
+        data = response.json().get("data", {})
 
-            # Check if response contains video data
-            if data.get("code") == 0 and "data" in data:
-                video_data = data["data"]
-                play_url = video_data.get("play", "No Play Link Available")
+        if data:
+            video_url = data["play"]
+            title = data["title"]
+            author = data["author"]["nickname"]
+            avatar = data["author"]["avatar"]
+            likes = data["digg_count"]
+            shares = data["share_count"]
+            comments = data["comment_count"]
+            views = data["play_count"]
 
-                # Send play link to user
-                await update.message.reply_text(f"▶️ *Play Link:* [Click Here]({play_url})", parse_mode="Markdown", disable_web_page_preview=True)
-            else:
-                await update.message.reply_text("⚠️ Failed to retrieve play link. Please try again.")
-        
-        except Exception as e:
-            await update.message.reply_text("⚠️ Error processing response. Please try again.")
-            logging.error(f"Error: {e}")
+            caption = (
+                f"🎵 *{title}*\n"
+                f"👤 Author: [{author}](https://www.tiktok.com/@{data['author']['unique_id']})\n"
+                f"👁 Views: {views:,}\n"
+                f"❤️ Likes: {likes:,}\n"
+                f"💬 Comments: {comments:,}\n"
+                f"🔗 [Watch on TikTok]({tiktok_url})"
+            )
 
+            bot.send_video(message.chat.id, video_url, caption=caption, parse_mode="Markdown")
+        else:
+            bot.reply_to(message, "Failed to fetch video details. Try another link.")
     else:
-        await update.message.reply_text(f"⚠️ API Error: {response.status_code}. Check API.")
+        bot.reply_to(message, "Error fetching video data. Please try again.")
 
-def main():
-    app = Application.builder().token(TOKEN).build()
-
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-
-    print("Bot is running...")
-    app.run_polling()
-
-if __name__ == '__main__':
-    main()
+bot.polling()
