@@ -1,24 +1,34 @@
 import json
 import telebot
+import requests
 
 # Your Telegram bot token
 TELEGRAM_BOT_TOKEN = "6045936754:AAEwmk2cNv19VSxEcKr4NaMjCNRk5I5AiZI"
 bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
 
-# Load TikTok JSON data from file
-try:
-    with open("tiktok.json", "r", encoding="utf-8") as file:
-        data = json.load(file)
-except FileNotFoundError:
-    print("Error: tiktok.json file not found!")
+# TikTok Video URL
+video_url = "https://vt.tiktok.com/ZSMY2qVS5/"  # Replace with your TikTok URL
+
+# Fetch TikTok Data from API
+TIKTOK_API_URL = f"https://api.sumiproject.net/tiktok?video={video_url}"
+
+# Fetch the API data
+response = requests.get(TIKTOK_API_URL)
+
+# Check if the response is successful
+if response.status_code != 200:
+    print(f"Error: Failed to fetch data. Status code: {response.status_code}")
     exit()
 
-# Check if "data" key exists
+# Load the API response as JSON
+data = response.json()
+
+# Check if 'data' key exists in the response
 if "data" not in data:
-    print("Error: Invalid JSON format. 'data' key not found.")
+    print("Error: Invalid API response. 'data' key not found.")
     exit()
 
-# Extract video details
+# Extract video details from the API response
 video_data = data["data"]
 video_url = video_data.get("play", None)  # Get video URL safely
 title = video_data.get("title", "No Title")
@@ -32,7 +42,7 @@ views = video_data.get("play_count", 0)
 
 # Check if video URL exists
 if not video_url:
-    print("Error: No video URL found in JSON data.")
+    print("Error: No video URL found in API response.")
     exit()
 
 # Telegram chat ID where you want to send the video
