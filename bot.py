@@ -21,27 +21,12 @@ def fetch_tiktok_video(message):
         data = response.json().get("data", {})
 
         if data:
-            video_url = data["play"]
-            title = data["title"]
-            author = data["author"]["nickname"]
-            avatar = data["author"]["avatar"]
-            likes = data["digg_count"]
-            shares = data["share_count"]
-            comments = data["comment_count"]
-            views = data["play_count"]
+            video_url = data["play"]  # Extract video URL without watermark
 
-            caption = (
-                f"🎵 *{title}*\n"
-                f"👤 Author: [{author}](https://www.tiktok.com/@{data['author']['unique_id']})\n"
-                f"👁 Views: {views:,}\n"
-                f"❤️ Likes: {likes:,}\n"
-                f"💬 Comments: {comments:,}\n"
-                f"🔗 [Watch on TikTok]({tiktok_url})"
-            )
-
-            bot.send_video(message.chat.id, video_url, caption=caption, parse_mode="Markdown")
+            # Send video without any caption
+            bot.send_video(message.chat.id, video_url)
         else:
-            bot.reply_to(message, "Failed to fetch video details. Try another link.")
+            bot.reply_to(message, "Failed to fetch video. Try another link.")
     else:
         bot.reply_to(message, "Error fetching video data. Please try again.")
 
